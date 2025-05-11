@@ -1,0 +1,80 @@
+@model ETMF.Models.ViewModels.UserViewModel
+
+@{
+    ViewData["Title"] = "删除用户";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-user-times"></i> 删除用户
+        </h6>
+        <div class="dropdown no-arrow">
+            <a class="btn btn-secondary btn-sm" asp-action="Index">
+                <i class="fas fa-arrow-left"></i> 返回用户列表
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i> 您确定要删除此用户吗？此操作无法撤销！
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">用户信息</h6>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.UserName)</dt>
+                    <dd class="col-sm-9">@Html.DisplayFor(model => model.UserName)</dd>
+                    
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Email)</dt>
+                    <dd class="col-sm-9">@Html.DisplayFor(model => model.Email)</dd>
+                    
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.FullName)</dt>
+                    <dd class="col-sm-9">@Html.DisplayFor(model => model.FullName)</dd>
+                    
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Roles)</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.Roles.Any())
+                        {
+                            @string.Join(", ", Model.Roles)
+                        }
+                        else
+                        {
+                            <span class="text-muted">无角色</span>
+                        }
+                    </dd>
+                    
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.IsActive)</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge badge-success">激活</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-secondary">禁用</span>
+                        }
+                    </dd>
+                    
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.CreatedAt)</dt>
+                    <dd class="col-sm-9">@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+                </dl>
+            </div>
+        </div>
+        
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> 确认删除
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> 取消
+                </a>
+            </div>
+        </form>
+    </div>
+</div> 

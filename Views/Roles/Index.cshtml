@@ -1,0 +1,63 @@
+@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityRole>
+
+@{
+    ViewData["Title"] = "角色管理";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-user-tag"></i> 角色管理
+        </h6>
+        <a asp-action="Create" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus"></i> 創建新角色
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="rolesTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>角色名稱</th>
+                        <th>角色ID</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var role in Model)
+                    {
+                        <tr>
+                            <td>@role.Name</td>
+                            <td>@role.Id</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a asp-action="Edit" asp-route-id="@role.Id" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-edit"></i> 編輯
+                                    </a>
+                                    <a asp-action="ManageUsers" asp-route-id="@role.Id" class="btn btn-info btn-sm">
+                                        <i class="fas fa-users"></i> 管理用戶
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@role.Id" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i> 刪除
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#rolesTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Chinese.json"
+                }
+            });
+        });
+    </script>
+} 

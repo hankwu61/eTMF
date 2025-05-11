@@ -1,0 +1,153 @@
+@model IEnumerable<ETMF.Models.Document>
+
+@{
+    ViewData["Title"] = "文档类型文档";
+    var artifact = ViewData["Artifact"] as ETMF.Models.Artifact;
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-file-alt"></i> 
+            @if (artifact != null)
+            {
+                if (artifact.Section != null && artifact.Section.Zone != null)
+                {
+                    @artifact.Section.Zone.Number<text>.</text>@artifact.Section.Number<text>.</text>@artifact.Number<text> - </text>@artifact.Name
+                }
+                else
+                {
+                    @artifact.Number<text> - </text>@artifact.Name
+                }
+            }
+            else
+            {
+                <text>文档列表</text>
+            }
+        </h6>
+        <div class="btn-group" role="group">
+            @if (artifact != null)
+            {
+                <a class="btn btn-primary btn-sm" asp-action="Create" asp-route-artifactId="@artifact.Id">
+                    <i class="fas fa-upload"></i> 上传新文档
+                </a>
+                <a class="btn btn-info btn-sm" asp-controller="Artifacts" asp-action="Details" asp-route-id="@artifact.Id">
+                    <i class="fas fa-info-circle"></i> 文档类型详情
+                </a>
+            }
+            <a class="btn btn-secondary btn-sm" asp-action="Index">
+                <i class="fas fa-arrow-left"></i> 返回列表
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        @if (artifact != null)
+        {
+            <div class="mb-3">
+                <p>
+                    <strong>路径：</strong>
+                    @if (artifact.Section != null)
+                    {
+                        if (artifact.Section.Zone != null)
+                        {
+                            <a asp-controller="Zones" asp-action="Details" asp-route-id="@artifact.Section.ZoneId">
+                                @artifact.Section.Zone.Number - @artifact.Section.Zone.Name
+                            </a>
+                            <text> / </text>
+                        }
+                        <a asp-controller="Sections" asp-action="Details" asp-route-id="@artifact.SectionId">
+                            @artifact.Section.Number - @artifact.Section.Name
+                        </a>
+                        <text> / </text>
+                    }
+                    <span class="text-primary">@artifact.Number - @artifact.Name</span>
+                </p>
+                <p>@artifact.Description</p>
+                <div>
+                    @if (artifact.IsRequired)
+                    {
+                        <span class="badge badge-danger">必需</span>
+                    }
+                    @if (artifact.IsEssential)
+                    {
+                        <span class="badge badge-warning">关键</span>
+                    }
+                </div>
+            </div>
+            
+            <hr />
+        }
+        
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>标题</th>
+                            <th>作者</th>
+                            <th>状态</th>
+                            <th>版本</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var document in Model)
+                        {
+                            <tr>
+                                <td>@document.Title</td>
+                                <td>@document.Author</td>
+                                <td>
+                                    @switch (document.Status)
+                                    {
+                                        case "Draft":
+                                            <span class="badge badge-warning">草稿</span>
+                                            break;
+                                        case "Final":
+                                            <span class="badge badge-success">最终版</span>
+                                            break;
+                                        case "Approved":
+                                            <span class="badge badge-primary">已批准</span>
+                                            break;
+                                        case "Obsolete":
+                                            <span class="badge badge-danger">已废弃</span>
+                                            break;
+                                        default:
+                                            <span class="badge badge-secondary">@document.Status</span>
+                                            break;
+                                    }
+                                    @if (document.IsArchived)
+                                    {
+                                        <span class="badge badge-dark">已归档</span>
+                                    }
+                                </td>
+                                <td>v@(document.Versions?.Count ?? 0)</td>
+                                <td>@document.CreatedAt.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a class="btn btn-outline-info btn-sm" asp-action="Details" asp-route-id="@document.Id">
+                                            <i class="fas fa-info-circle"></i> 详情
+                                        </a>
+                                        <a class="btn btn-outline-success btn-sm" asp-action="Download" asp-route-id="@document.Id">
+                                            <i class="fas fa-download"></i> 下载
+                                        </a>
+                                        <a class="btn btn-outline-primary btn-sm" asp-action="Edit" asp-route-id="@document.Id">
+                                            <i class="fas fa-edit"></i> 编辑
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                该文档类型下暂无文档，请点击"上传新文档"按钮添加。
+            </div>
+        }
+    </div>
+</div> 

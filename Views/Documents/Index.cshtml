@@ -1,0 +1,148 @@
+@model IEnumerable<ETMF.Models.Document>
+
+@{
+    ViewData["Title"] = "文档管理";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-file"></i> 文档管理
+        </h6>
+        <div class="dropdown no-arrow">
+            <a class="btn btn-primary btn-sm" asp-action="Create">
+                <i class="fas fa-upload fa-sm"></i> 上传新文档
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <!-- 文档筛选 -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <form method="get" class="form-inline">
+                    <div class="form-group mx-sm-3 mb-2">
+                        <input type="text" name="searchTerm" class="form-control" placeholder="搜索文档..." value="@ViewData["CurrentFilter"]" />
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2">
+                        <i class="fas fa-search"></i> 搜索
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>标题</th>
+                        <th>文档类型</th>
+                        <th>作者</th>
+                        <th>状态</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Title</td>
+                            <td>
+                                @if (item.Artifact != null)
+                                {
+                                    <a asp-controller="Artifacts" asp-action="Details" asp-route-id="@item.ArtifactId">
+                                        @if (item.Artifact.Section != null && item.Artifact.Section.Zone != null)
+                                        {
+                                            @item.Artifact.Section.Zone.Number<text>.</text>@item.Artifact.Section.Number<text>.</text>@item.Artifact.Number<text> - </text>@item.Artifact.Name
+                                        }
+                                        else
+                                        {
+                                            @item.Artifact.Number<text> - </text>@item.Artifact.Name
+                                        }
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span>未指定文档类型</span>
+                                }
+                            </td>
+                            <td>@item.Author</td>
+                            <td>
+                                @switch (item.Status)
+                                {
+                                    case "Draft":
+                                        <span class="badge badge-warning">草稿</span>
+                                        break;
+                                    case "Final":
+                                        <span class="badge badge-success">最终版</span>
+                                        break;
+                                    case "Approved":
+                                        <span class="badge badge-primary">已批准</span>
+                                        break;
+                                    case "Obsolete":
+                                        <span class="badge badge-danger">已废弃</span>
+                                        break;
+                                    default:
+                                        <span class="badge badge-secondary">@item.Status</span>
+                                        break;
+                                }
+                                @if (item.IsArchived)
+                                {
+                                    <span class="badge badge-dark">已归档</span>
+                                }
+                            </td>
+                            <td>@item.CreatedAt.ToString("yyyy-MM-dd")</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a class="btn btn-outline-info btn-sm" asp-action="Details" asp-route-id="@item.Id">
+                                        <i class="fas fa-info-circle"></i> 详情
+                                    </a>
+                                    <a class="btn btn-outline-success btn-sm" asp-action="Download" asp-route-id="@item.Id">
+                                        <i class="fas fa-download"></i> 下载
+                                    </a>
+                                    <a class="btn btn-outline-primary btn-sm" asp-action="Edit" asp-route-id="@item.Id">
+                                        <i class="fas fa-edit"></i> 编辑
+                                    </a>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-cog"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a class="dropdown-item" asp-action="UploadNewVersion" asp-route-id="@item.Id">
+                                                    <i class="fas fa-file-upload"></i> 上传新版本
+                                                </a>
+                                            </li>
+                                            @if (!item.IsArchived)
+                                            {
+                                                <li>
+                                                    <a class="dropdown-item" asp-action="Archive" asp-route-id="@item.Id">
+                                                        <i class="fas fa-archive"></i> 归档
+                                                    </a>
+                                                </li>
+                                            }
+                                            else
+                                            {
+                                                <li>
+                                                    <a class="dropdown-item" asp-action="Unarchive" asp-route-id="@item.Id">
+                                                        <i class="fas fa-archive"></i> 取消归档
+                                                    </a>
+                                                </li>
+                                            }
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a class="dropdown-item text-danger" asp-action="Delete" asp-route-id="@item.Id">
+                                                    <i class="fas fa-trash"></i> 删除
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div> 

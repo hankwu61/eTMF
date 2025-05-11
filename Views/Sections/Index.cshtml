@@ -1,0 +1,61 @@
+@model IEnumerable<ETMF.Models.Section>
+
+@{
+    ViewData["Title"] = "部分管理";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-folder"></i> 部分管理
+        </h6>
+        <div class="dropdown no-arrow">
+            <a class="btn btn-primary btn-sm" asp-action="Create">
+                <i class="fas fa-plus fa-sm"></i> 创建新部分
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>区域</th>
+                        <th>编号</th>
+                        <th>名称</th>
+                        <th>描述</th>
+                        <th>文档类型数量</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@(item.Zone != null ? $"{item.Zone.Number} - {item.Zone.Name}" : "未分配区域")</td>
+                            <td>@item.Number</td>
+                            <td>@item.Name</td>
+                            <td>@item.Description</td>
+                            <td>@(item.Artifacts?.Count ?? 0)</td>
+                            <td>@item.CreatedAt.ToString("yyyy-MM-dd")</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a class="btn btn-outline-info btn-sm" asp-action="Details" asp-route-id="@item.Id">
+                                        <i class="fas fa-info-circle"></i> 详情
+                                    </a>
+                                    <a class="btn btn-outline-primary btn-sm" asp-action="Edit" asp-route-id="@item.Id">
+                                        <i class="fas fa-edit"></i> 编辑
+                                    </a>
+                                    <a class="btn btn-outline-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id">
+                                        <i class="fas fa-trash"></i> 删除
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div> 

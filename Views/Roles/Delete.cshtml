@@ -1,0 +1,37 @@
+@model Microsoft.AspNetCore.Identity.IdentityRole
+
+@{
+    ViewData["Title"] = "刪除角色";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-trash"></i> 刪除角色
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-danger">
+            <h5><i class="fas fa-exclamation-triangle"></i> 警告</h5>
+            <p>您確定要刪除此角色嗎？此操作無法撤銷。</p>
+        </div>
+        
+        <dl class="row">
+            <dt class="col-sm-2">角色名稱</dt>
+            <dd class="col-sm-10">@Model.Name</dd>
+            
+            <dt class="col-sm-2">角色ID</dt>
+            <dd class="col-sm-10">@Model.Id</dd>
+        </dl>
+        
+        <form asp-action="Delete" method="post">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash"></i> 確認刪除
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> 返回列表
+            </a>
+        </form>
+    </div>
+</div> 

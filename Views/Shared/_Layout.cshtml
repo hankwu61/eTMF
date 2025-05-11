@@ -1,0 +1,316 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Authorization
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject IAuthorizationService AuthorizationService
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>@ViewData["Title"] - ETMF</title>
+    
+    <!-- 核心CSS -->
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/lib/font-awesome/css/all.min.css" rel="stylesheet">
+    <link href="~/lib/sb-admin-2/css/sb-admin-2.min.css" rel="stylesheet">
+    
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/datatables/css/dataTables.bootstrap4.min.css" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body id="page-top">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" asp-controller="Home" asp-action="Index">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fas fa-folder-open"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">eTMF 系统</div>
+            </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>仪表板</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                文档管理
+            </div>
+
+            <!-- Nav Item - TMF Tree -->
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Home" asp-action="TmfTree">
+                    <i class="fas fa-fw fa-project-diagram"></i>
+                    <span>TMF参考模型</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Documents -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseDocuments"
+                    aria-expanded="true" aria-controls="collapseDocuments">
+                    <i class="fas fa-fw fa-file-alt"></i>
+                    <span>文档管理</span>
+                </a>
+                <div id="collapseDocuments" class="collapse" aria-labelledby="headingDocuments" data-bs-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">文档状态:</h6>
+                        <a class="collapse-item" asp-controller="Documents" asp-action="Index">所有文档</a>
+                        <a class="collapse-item" asp-controller="Home" asp-action="DraftDocuments">草稿文档</a>
+                        <a class="collapse-item" asp-controller="Home" asp-action="PendingDocuments">待审核文档</a>
+                        <a class="collapse-item" asp-controller="Home" asp-action="ApprovedDocuments">已批准文档</a>
+                        <a class="collapse-item" asp-controller="Home" asp-action="RejectedDocuments">被退回文档</a>
+                        <a class="collapse-item" asp-controller="Home" asp-action="ArchivedDocuments">已归档文档</a>
+                        <a class="collapse-item" asp-controller="Home" asp-action="ExpiredDocuments">已过期文档</a>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Nav Item - Structure -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseStructure"
+                    aria-expanded="true" aria-controls="collapseStructure">
+                    <i class="fas fa-fw fa-sitemap"></i>
+                    <span>TMF结构管理</span>
+                </a>
+                <div id="collapseStructure" class="collapse" aria-labelledby="headingStructure" data-bs-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">结构管理:</h6>
+                        <a class="collapse-item" asp-controller="Zones" asp-action="Index">区域管理</a>
+                        <a class="collapse-item" asp-controller="Sections" asp-action="Index">部分管理</a>
+                        <a class="collapse-item" asp-controller="Artifacts" asp-action="Index">文档类型管理</a>
+                    </div>
+                </div>
+            </li>
+            
+            @if ((await AuthorizationService.AuthorizeAsync(User, "CanManageUsers")).Succeeded)
+            {
+                <!-- Divider -->
+                <hr class="sidebar-divider">
+    
+                <!-- Heading -->
+                <div class="sidebar-heading">
+                    系统管理
+                </div>
+    
+                <!-- Nav Item - Users -->
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Users" asp-action="Index">
+                        <i class="fas fa-fw fa-users"></i>
+                        <span>用户管理</span>
+                    </a>
+                </li>
+                
+                <!-- Nav Item - Roles -->
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Roles" asp-action="Index">
+                        <i class="fas fa-fw fa-user-tag"></i>
+                        <span>角色管理</span>
+                    </a>
+                </li>
+                
+                <!-- Nav Item - System Settings -->
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Settings" asp-action="Index">
+                        <i class="fas fa-fw fa-cog"></i>
+                        <span>系统设置</span>
+                    </a>
+                </li>
+            }
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+        </ul>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                    <!-- Sidebar Toggle (Topbar) -->
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fas fa-bars"></i>
+                    </button>
+
+                    <!-- Topbar Search -->
+                    <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search"
+                          asp-controller="Documents" asp-action="Search" method="get">
+                        <div class="input-group">
+                            <input type="text" name="searchTerm" class="form-control bg-light border-0 small" placeholder="搜索文档..."
+                                aria-label="Search" aria-describedby="basic-addon2">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-search fa-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Topbar Navbar -->
+                    <ul class="navbar-nav ml-auto">
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item dropdown no-arrow">
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="mr-2 d-none d-lg-inline text-gray-600 small">@User.Identity.Name</span>
+                                    <i class="fas fa-user-circle fa-fw fa-2x text-gray-400"></i>
+                                </a>
+                                <!-- Dropdown - User Information -->
+                                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                    aria-labelledby="userDropdown">
+                                    <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
+                                        <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                        个人资料
+                                    </a>
+                                    <a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">
+                                        <i class="fas fa-key fa-sm fa-fw mr-2 text-gray-400"></i>
+                                        修改密码
+                                    </a>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a class="dropdown-item" asp-controller="Settings" asp-action="Index">
+                                            <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
+                                            系统设置
+                                        </a>
+                                    }
+                                    <div class="dropdown-divider"></div>
+                                    <form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm">
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                            退出登录
+                                        </button>
+                                    </form>
+                                </div>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">
+                                    <i class="fas fa-sign-in-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    登录
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+                <!-- End of Topbar -->
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+
+                    @RenderBody()
+                </div>
+                <!-- /.container-fluid -->
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright &copy; ETMF @DateTime.Now.Year</span>
+                    </div>
+                </div>
+            </footer>
+            <!-- End of Footer -->
+        </div>
+        <!-- End of Content Wrapper -->
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- 核心JavaScript -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/sb-admin-2/js/sb-admin-2.min.js"></script>
+    
+    <!-- 自定义脚本 -->
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <script>
+        // 确保Bootstrap的dropdown功能正常工作
+        $(document).ready(function() {
+            // 初始化所有dropdown
+            $('.dropdown-toggle').dropdown();
+            
+            // 为登出按钮添加点击事件
+            $('#logoutForm').on('submit', function() {
+                return confirm('确定要登出吗？');
+            });
+        });
+    </script>
+    
+    @{
+        // 檢查當前控制器是否為Settings，如果是則不加載DataTables
+        var controllerName = ViewContext.RouteData.Values["controller"]?.ToString();
+        var isSettings = controllerName == "Settings";
+    }
+    
+    @if (!isSettings)
+    {
+        <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+        <script src="~/lib/datatables/js/dataTables.bootstrap4.min.js"></script>
+    }
+    else
+    {
+        <script>
+            // 為Settings頁面提供空的DataTables對象，防止錯誤
+            if (typeof $.fn.dataTable === 'undefined') {
+                $.fn.dataTable = {};
+                $.fn.dataTable.defaults = {};
+            }
+        </script>
+    }
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

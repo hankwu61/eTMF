@@ -1,0 +1,139 @@
+@model ETMF.Models.Document
+
+@{
+    ViewData["Title"] = "上传新版本";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-file-upload"></i> 上传新版本
+        </h6>
+        <div class="dropdown no-arrow">
+            <a class="btn btn-secondary btn-sm" asp-action="Details" asp-route-id="@((Model as ETMF.Models.Document)?.Id ?? (ViewData["Document"] as ETMF.Models.Document)?.Id)">
+                <i class="fas fa-arrow-left"></i> 返回文档详情
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h5 class="text-primary">文档信息</h5>
+                <dl class="row">
+                    <dt class="col-sm-4">标题</dt>
+                    <dd class="col-sm-8">@((ViewData["Document"] as ETMF.Models.Document)?.Title)</dd>
+                    
+                    <dt class="col-sm-4">文档标识符</dt>
+                    <dd class="col-sm-8">@((ViewData["Document"] as ETMF.Models.Document)?.DocumentIdentifier)</dd>
+                    
+                    <dt class="col-sm-4">文档类型</dt>
+                    <dd class="col-sm-8">
+                        @{
+                            var doc = ViewData["Document"] as ETMF.Models.Document;
+                            if (doc?.Artifact != null && doc.Artifact.Section != null && doc.Artifact.Section.Zone != null)
+                            {
+                                <text>@doc.Artifact.Section.Zone.Number.@doc.Artifact.Section.Number.@doc.Artifact.Number - @doc.Artifact.Name</text>
+                            }
+                            else if (doc?.Artifact != null)
+                            {
+                                <text>@doc.Artifact.Number - @doc.Artifact.Name</text>
+                            }
+                            else
+                            {
+                                <text>未分配文档类型</text>
+                            }
+                        }
+                    </dd>
+                    
+                    <dt class="col-sm-4">当前版本</dt>
+                    <dd class="col-sm-8">v@((ViewData["Document"] as ETMF.Models.Document)?.Versions?.Count ?? 0)</dd>
+                </dl>
+            </div>
+        </div>
+        
+        <form asp-action="UploadNewVersion" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" name="id" value="@((ViewData["Document"] as ETMF.Models.Document)?.Id)" />
+            
+            <div class="form-group row">
+                <label for="versionComment" class="col-sm-2 col-form-label">版本说明</label>
+                <div class="col-sm-10">
+                    <textarea id="versionComment" name="versionComment" class="form-control" rows="3" placeholder="请输入本次更新的说明（如：修正错误、更新内容等）"></textarea>
+                </div>
+            </div>
+            
+            <div class="form-group row">
+                <label for="file" class="col-sm-2 col-form-label">文档文件</label>
+                <div class="col-sm-10">
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="file" name="file" required>
+                        <label class="custom-file-label" for="file">选择文件...</label>
+                    </div>
+                    <small class="form-text text-muted">支持的文件格式：PDF, Word, Excel, PowerPoint, 图片等常用格式</small>
+                </div>
+            </div>
+            
+            <div class="form-group row">
+                <div class="col-sm-10 offset-sm-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> 上传新版本
+                    </button>
+                    <a asp-action="Details" asp-route-id="@((ViewData["Document"] as ETMF.Models.Document)?.Id)" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> 取消
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@{
+    var document = ViewData["Document"] as ETMF.Models.Document;
+    if (document?.Versions != null && document.Versions.Count > 0)
+    {
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-history"></i> 已有版本
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>版本号</th>
+                                <th>文件名</th>
+                                <th>版本说明</th>
+                                <th>上传时间</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var version in document.Versions.OrderByDescending(v => v.CreatedAt))
+                            {
+                                <tr class="@(version.Id == document.CurrentVersionId ? "table-primary" : "")">
+                                    <td>v@(document.Versions.Count - document.Versions.ToList().IndexOf(version))</td>
+                                    <td>@version.FileName</td>
+                                    <td>@version.VersionComment</td>
+                                    <td>@version.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // 文件上传显示文件名
+        $(".custom-file-input").on("change", function() {
+            var fileName = $(this).val().split("\\").pop();
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
+    </script>
+} 

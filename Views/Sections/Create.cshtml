@@ -1,0 +1,84 @@
+@model ETMF.Models.Section
+
+@{
+    ViewData["Title"] = "创建部分";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-plus-circle"></i> 创建部分
+        </h6>
+        <div class="dropdown no-arrow">
+            <a class="btn btn-secondary btn-sm" asp-action="Index">
+                <i class="fas fa-arrow-left"></i> 返回列表
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            @if (ViewData["ZoneId"] != null)
+            {
+                <input type="hidden" name="ZoneId" value="@ViewData["ZoneId"]" />
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">所属区域</label>
+                    <div class="col-sm-10">
+                        <input class="form-control" value="@ViewData["ZoneName"]" readonly />
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="form-group row">
+                    <label asp-for="ZoneId" class="col-sm-2 col-form-label">所属区域</label>
+                    <div class="col-sm-10">
+                        <select asp-for="ZoneId" class="form-control" asp-items="ViewBag.ZoneId"></select>
+                        <span asp-validation-for="ZoneId" class="text-danger"></span>
+                    </div>
+                </div>
+            }
+            
+            <div class="form-group row">
+                <label asp-for="Number" class="col-sm-2 col-form-label">编号</label>
+                <div class="col-sm-10">
+                    <input asp-for="Number" class="form-control" placeholder="例如: 01" />
+                    <span asp-validation-for="Number" class="text-danger"></span>
+                    <small class="form-text text-muted">请输入部分的编号，通常为两位数字。</small>
+                </div>
+            </div>
+            
+            <div class="form-group row">
+                <label asp-for="Name" class="col-sm-2 col-form-label">名称</label>
+                <div class="col-sm-10">
+                    <input asp-for="Name" class="form-control" placeholder="例如: 试验计划" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+            </div>
+            
+            <div class="form-group row">
+                <label asp-for="Description" class="col-sm-2 col-form-label">描述</label>
+                <div class="col-sm-10">
+                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="请输入部分的详细描述"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+            </div>
+            
+            <div class="form-group row">
+                <div class="col-sm-10 offset-sm-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> 保存
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> 取消
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} 

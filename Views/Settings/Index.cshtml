@@ -1,0 +1,167 @@
+@model ETMF.Models.ViewModels.SystemSettingsViewModel
+@{
+    ViewData["Title"] = "系统设置";
+}
+
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">系统设置</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- 系统设置卡片 -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">基本设置</h6>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Index" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <!-- 添加隐藏字段记录当前活动标签 -->
+                        <input type="hidden" name="activeTab" id="activeTab" value="general" />
+                        
+                        <div class="form-group">
+                            <label asp-for="ApplicationName">应用程序名称</label>
+                            <input asp-for="ApplicationName" class="form-control" />
+                            <span asp-validation-for="ApplicationName" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="CompanyName">公司名称</label>
+                            <input asp-for="CompanyName" class="form-control" />
+                            <span asp-validation-for="CompanyName" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="SupportEmail">技术支持邮箱</label>
+                            <input asp-for="SupportEmail" class="form-control" type="email" />
+                            <span asp-validation-for="SupportEmail" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="DefaultPageSize">默认分页大小</label>
+                            <input asp-for="DefaultPageSize" class="form-control" type="number" min="5" max="100" />
+                            <span asp-validation-for="DefaultPageSize" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="EnableAuditLogging">启用审计日志</label>
+                            <div class="custom-control custom-switch">
+                                <input asp-for="EnableAuditLogging" class="custom-control-input" type="checkbox" />
+                                <label class="custom-control-label" for="EnableAuditLogging"></label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="MaxUploadFileSize">最大文件大小 (MB)</label>
+                            <input asp-for="MaxUploadFileSize" class="form-control" type="number" />
+                            <span asp-validation-for="MaxUploadFileSize" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="AllowedFileExtensions">允许的文件类型</label>
+                            <input asp-for="AllowedFileExtensions" class="form-control" />
+                            <span asp-validation-for="AllowedFileExtensions" class="text-danger"></span>
+                            <small class="form-text text-muted">用逗号分隔，例如：.pdf,.doc,.docx</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="EnableEmailNotifications">启用邮件通知</label>
+                            <div class="custom-control custom-switch">
+                                <input asp-for="EnableEmailNotifications" class="custom-control-input" type="checkbox" />
+                                <label class="custom-control-label" for="EnableEmailNotifications"></label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="SmtpServer">SMTP服务器</label>
+                            <input asp-for="SmtpServer" class="form-control" />
+                            <span asp-validation-for="SmtpServer" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="SmtpPort">SMTP端口</label>
+                            <input asp-for="SmtpPort" class="form-control" type="number" />
+                            <span asp-validation-for="SmtpPort" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="SmtpUsername">SMTP用户名</label>
+                            <input asp-for="SmtpUsername" class="form-control" />
+                            <span asp-validation-for="SmtpUsername" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="SmtpPassword">SMTP密码</label>
+                            <input asp-for="SmtpPassword" class="form-control" type="password" />
+                            <span asp-validation-for="SmtpPassword" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="SmtpUseSsl">使用SSL</label>
+                            <div class="custom-control custom-switch">
+                                <input asp-for="SmtpUseSsl" class="custom-control-input" type="checkbox" />
+                                <label class="custom-control-label" for="SmtpUseSsl"></label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="SystemTheme">系统主题</label>
+                            <select asp-for="SystemTheme" class="form-control">
+                                <option value="default">默认主题</option>
+                                <option value="dark">暗色主题</option>
+                                <option value="light">亮色主题</option>
+                            </select>
+                            <span asp-validation-for="SystemTheme" class="text-danger"></span>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">保存设置</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            // 记录当前活动标签页
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                var activeTab = $(e.target).attr('href').replace('#', '');
+                $('#activeTab').val(activeTab);
+            });
+            
+            // 检查URL中是否有标签页指示符
+            if(window.location.hash) {
+                var activeTab = window.location.hash.replace('#', '');
+                $('.nav-tabs a[href="#' + activeTab + '"]').tab('show');
+                $('#activeTab').val(activeTab);
+            }
+            
+            // 表单提交前记录当前标签页
+            $('form').on('submit', function() {
+                var activeTab = $('.nav-tabs .active').attr('href');
+                if (activeTab) {
+                    $('#activeTab').val(activeTab.replace('#', ''));
+                }
+                return true;
+            });
+            
+            // 显示保存成功消息
+            @if(TempData["SuccessMessage"] != null)
+            {
+                <text>
+                setTimeout(function() {
+                    $('.alert-success').fadeOut('slow');
+                }, 3000);
+                </text>
+            }
+        });
+    </script>
+} 

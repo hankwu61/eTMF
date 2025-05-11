@@ -1,0 +1,102 @@
+@model ETMF.Models.Document
+
+@{
+    ViewData["Title"] = "删除文档";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-trash"></i> 删除文档确认
+        </h6>
+        <div class="btn-group" role="group">
+            <a class="btn btn-secondary btn-sm" asp-action="Index">
+                <i class="fas fa-arrow-left"></i> 返回列表
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i> 确定要删除此文档吗？此操作不可逆，将会删除所有相关文件和版本记录。
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <h5 class="text-primary">文档信息</h5>
+                <dl class="row">
+                    <dt class="col-sm-4">文档标识符</dt>
+                    <dd class="col-sm-8">@Model.DocumentIdentifier</dd>
+                    
+                    <dt class="col-sm-4">标题</dt>
+                    <dd class="col-sm-8">@Model.Title</dd>
+                    
+                    <dt class="col-sm-4">作者</dt>
+                    <dd class="col-sm-8">@Model.Author</dd>
+                    
+                    <dt class="col-sm-4">状态</dt>
+                    <dd class="col-sm-8">
+                        @switch (Model.Status)
+                        {
+                            case "Draft":
+                                <span class="badge badge-warning">草稿</span>
+                                break;
+                            case "Final":
+                                <span class="badge badge-success">最终版</span>
+                                break;
+                            case "Approved":
+                                <span class="badge badge-primary">已批准</span>
+                                break;
+                            case "Obsolete":
+                                <span class="badge badge-danger">已废弃</span>
+                                break;
+                            default:
+                                <span class="badge badge-secondary">@Model.Status</span>
+                                break;
+                        }
+                        @if (Model.IsArchived)
+                        {
+                            <span class="badge badge-dark">已归档</span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-4">描述</dt>
+                    <dd class="col-sm-8">@Model.Description</dd>
+                    
+                    <dt class="col-sm-4">文档类型</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.Artifact != null)
+                        {
+                            @if (Model.Artifact.Section != null && Model.Artifact.Section.Zone != null)
+                            {
+                                @Model.Artifact.Section.Zone.Number<text>.</text>@Model.Artifact.Section.Number<text>.</text>@Model.Artifact.Number<text> - </text>@Model.Artifact.Name
+                            }
+                            else
+                            {
+                                @Model.Artifact.Number<text> - </text>@Model.Artifact.Name
+                            }
+                        }
+                        else
+                        {
+                            <span>未指定文档类型</span>
+                        }
+                    </dd>
+                    
+                    <dt class="col-sm-4">创建时间</dt>
+                    <dd class="col-sm-8">@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+                </dl>
+            </div>
+        </div>
+        
+        <form asp-action="Delete" method="post" class="mt-4">
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> 确认删除
+                </button>
+                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> 取消
+                </a>
+            </div>
+        </form>
+    </div>
+</div> 

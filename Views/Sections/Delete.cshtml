@@ -1,0 +1,77 @@
+@model ETMF.Models.Section
+
+@{
+    ViewData["Title"] = "删除部分";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-danger">
+            <i class="fas fa-trash"></i> 删除部分
+        </h6>
+        <div class="dropdown no-arrow">
+            <a class="btn btn-secondary btn-sm" asp-action="Index">
+                <i class="fas fa-arrow-left"></i> 返回列表
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        
+        <div class="alert alert-warning">
+            <h5><i class="fas fa-exclamation-triangle"></i> 警告</h5>
+            <p>您确定要删除这个部分吗？此操作将同时删除该部分下的所有文档类型和文档，且无法恢复！</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <dl class="row">
+                    <dt class="col-sm-4">所属区域</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.Zone != null)
+                        {
+                            <text>@Model.Zone.Number - @Model.Zone.Name</text>
+                        }
+                        else
+                        {
+                            <text>未分配区域</text>
+                        }
+                    </dd>
+                    
+                    <dt class="col-sm-4">编号</dt>
+                    <dd class="col-sm-8">@Model.Number</dd>
+                    
+                    <dt class="col-sm-4">名称</dt>
+                    <dd class="col-sm-8">@Model.Name</dd>
+                    
+                    <dt class="col-sm-4">描述</dt>
+                    <dd class="col-sm-8">@Model.Description</dd>
+                    
+                    <dt class="col-sm-4">文档类型数量</dt>
+                    <dd class="col-sm-8">
+                        @(Model.Artifacts?.Count ?? 0)
+                        @if ((Model.Artifacts?.Count ?? 0) > 0 && Model.Artifacts.Any(a => a.Documents != null && a.Documents.Any()))
+                        {
+                            <div class="alert alert-danger mt-2">
+                                <i class="fas fa-ban"></i> 该部分下的文档类型已存在文档，无法删除。请先删除相关文档。
+                            </div>
+                        }
+                    </dd>
+                    
+                    <dt class="col-sm-4">创建时间</dt>
+                    <dd class="col-sm-8">@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+                </dl>
+                
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="Id" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> 确认删除
+                    </button>
+                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> 取消
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> 

@@ -1,0 +1,13 @@
+@using ETMF
+@using ETMF.Models
+@using ETMF.Models.ViewModels
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@* 禁用DataTables自動初始化 *@
+@section Scripts {
+    <script>
+        // 防止DataTables錯誤
+        $.fn.dataTable = $.fn.dataTable || {};
+        $.fn.dataTable.defaults = $.fn.dataTable.defaults || {};
+    </script>
+} 

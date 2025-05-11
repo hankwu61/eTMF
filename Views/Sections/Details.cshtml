@@ -1,0 +1,124 @@
+@model ETMF.Models.Section
+
+@{
+    ViewData["Title"] = "部分详情";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-info-circle"></i> 部分详情
+        </h6>
+        <div class="btn-group" role="group">
+            <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@Model.Id">
+                <i class="fas fa-edit"></i> 编辑
+            </a>
+            <a class="btn btn-secondary btn-sm" asp-action="Index">
+                <i class="fas fa-arrow-left"></i> 返回列表
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <dl class="row">
+                    <dt class="col-sm-4">所属区域</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.Zone != null)
+                        {
+                            <a asp-controller="Zones" asp-action="Details" asp-route-id="@Model.ZoneId">
+                                @Model.Zone.Number - @Model.Zone.Name
+                            </a>
+                        }
+                        else
+                        {
+                            <span>未分配区域</span>
+                        }
+                    </dd>
+                    
+                    <dt class="col-sm-4">编号</dt>
+                    <dd class="col-sm-8">@Model.Number</dd>
+                    
+                    <dt class="col-sm-4">名称</dt>
+                    <dd class="col-sm-8">@Model.Name</dd>
+                    
+                    <dt class="col-sm-4">描述</dt>
+                    <dd class="col-sm-8">@Model.Description</dd>
+                    
+                    <dt class="col-sm-4">创建时间</dt>
+                    <dd class="col-sm-8">@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+                    
+                    @if (Model.UpdatedAt.HasValue)
+                    {
+                        <dt class="col-sm-4">更新时间</dt>
+                        <dd class="col-sm-8">@Model.UpdatedAt.Value.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+                    }
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-file-alt"></i> 包含的文档类型
+        </h6>
+        <div class="dropdown no-arrow">
+            <a class="btn btn-primary btn-sm" asp-controller="Artifacts" asp-action="Create" asp-route-sectionId="@Model.Id">
+                <i class="fas fa-plus fa-sm"></i> 添加文档类型
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        @if (Model.Artifacts != null && Model.Artifacts.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>编号</th>
+                            <th>名称</th>
+                            <th>描述</th>
+                            <th>文档数量</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var artifact in Model.Artifacts.OrderBy(a => a.Number))
+                        {
+                            <tr>
+                                <td>@artifact.Number</td>
+                                <td>@artifact.Name</td>
+                                <td>@artifact.Description</td>
+                                <td>@(artifact.Documents?.Count ?? 0)</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a class="btn btn-outline-info btn-sm" asp-controller="Artifacts" asp-action="Details" asp-route-id="@artifact.Id">
+                                            <i class="fas fa-info-circle"></i> 详情
+                                        </a>
+                                        <a class="btn btn-outline-primary btn-sm" asp-controller="Artifacts" asp-action="Edit" asp-route-id="@artifact.Id">
+                                            <i class="fas fa-edit"></i> 编辑
+                                        </a>
+                                        <a class="btn btn-outline-danger btn-sm" asp-controller="Artifacts" asp-action="Delete" asp-route-id="@artifact.Id">
+                                            <i class="fas fa-trash"></i> 删除
+                                        </a>
+                                        <a class="btn btn-outline-success btn-sm" asp-controller="Documents" asp-action="ByArtifact" asp-route-id="@artifact.Id">
+                                            <i class="fas fa-file"></i> 查看文档
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                该部分暂无文档类型，请点击"添加文档类型"按钮创建。
+            </div>
+        }
+    </div>
+</div> 

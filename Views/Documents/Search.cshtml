@@ -1,0 +1,183 @@
+@model IEnumerable<ETMF.Models.Document>
+
+@{
+    ViewData["Title"] = "搜索文档";
+    var searchTerm = ViewData["SearchTerm"] as string;
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-search"></i> 文档搜索结果
+        </h6>
+        <div class="btn-group" role="group">
+            <a class="btn btn-primary btn-sm" asp-action="Index">
+                <i class="fas fa-arrow-left"></i> 返回列表
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="mb-4">
+            <form asp-action="Search" method="get" class="form-inline">
+                <div class="input-group mb-2 mr-sm-2">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fas fa-search"></i></div>
+                    </div>
+                    <input type="text" class="form-control" name="searchTerm" placeholder="搜索文档..." value="@searchTerm">
+                </div>
+                
+                <div class="input-group mb-2 mr-sm-2">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">区域</div>
+                    </div>
+                    <select name="zoneId" class="form-control">
+                        <option value="">所有区域</option>
+                        @if (ViewData["Zones"] != null)
+                        {
+                            foreach (var zone in ViewData["Zones"] as IEnumerable<ETMF.Models.Zone> ?? Enumerable.Empty<ETMF.Models.Zone>())
+                            {
+                                if (ViewData["ZoneId"] != null && int.TryParse(ViewData["ZoneId"]?.ToString(), out int zoneId) && zoneId == zone.Id)
+                                {
+                                    <option value="@zone.Id" selected>@zone.Number - @zone.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@zone.Id">@zone.Number - @zone.Name</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+                
+                <div class="input-group mb-2 mr-sm-2">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">状态</div>
+                    </div>
+                    <select name="status" class="form-control">
+                        <option value="">所有状态</option>
+                        <option value="草稿">草稿</option>
+                        <option value="待审核">待审核</option>
+                        <option value="已批准">已批准</option>
+                        <option value="已退回">已退回</option>
+                        <option value="已过期">已过期</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary mb-2">搜索</button>
+                <button type="reset" class="btn btn-outline-secondary mb-2 ml-2">重置</button>
+            </form>
+        </div>
+        
+        <h5 class="mb-3">
+            @if (!string.IsNullOrEmpty(searchTerm))
+            {
+                <text>关于 "<strong>@searchTerm</strong>" 的搜索结果</text>
+            }
+            else
+            {
+                <text>全部文档</text>
+            }
+        </h5>
+        
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="documentsTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>标题</th>
+                            <th>文档类型</th>
+                            <th>作者</th>
+                            <th>状态</th>
+                            <th>创建日期</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Id</td>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@item.Id">@item.Title</a>
+                                    @if (item.IsArchived)
+                                    {
+                                        <span class="badge badge-dark ml-1">已归档</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.Artifact != null)
+                                    {
+                                        @if (item.Artifact.Section != null && item.Artifact.Section.Zone != null)
+                                        {
+                                            <small>@item.Artifact.Section.Zone.Number.@item.Artifact.Section.Number.@item.Artifact.Number</small><br/>
+                                        }
+                                        @item.Artifact.Name
+                                    }
+                                </td>
+                                <td>@item.Author</td>
+                                <td>
+                                    @switch (item.Status)
+                                    {
+                                        case "草稿":
+                                            <span class="badge badge-secondary">草稿</span>
+                                            break;
+                                        case "待审核":
+                                            <span class="badge badge-warning">待审核</span>
+                                            break;
+                                        case "已批准":
+                                            <span class="badge badge-success">已批准</span>
+                                            break;
+                                        case "已退回":
+                                            <span class="badge badge-danger">已退回</span>
+                                            break;
+                                        default:
+                                            <span class="badge badge-info">@item.Status</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>@item.CreatedAt.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary btn-sm" data-toggle="tooltip" title="查看详情">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-info btn-sm" data-toggle="tooltip" title="编辑">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="Download" asp-route-id="@item.Id" class="btn btn-success btn-sm" data-toggle="tooltip" title="下载">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> 未找到符合条件的文档。
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#documentsTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Chinese.json"
+                },
+                "order": [[5, "desc"]] // 默认按创建日期降序排序
+            });
+            
+            // 初始化工具提示
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+} 

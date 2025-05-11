@@ -1,0 +1,678 @@
+@model ETMF.Models.ViewModels.TmfTreeViewModel
+
+@{
+    ViewData["Title"] = "TMF参考模型树状结构";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-project-diagram"></i> TMF参考模型结构
+        </h6>
+        <div class="dropdown no-arrow">
+            <a class="btn btn-primary btn-sm" href="javascript:expandAll()">
+                <i class="fas fa-expand"></i> 展开全部
+            </a>
+            <a class="btn btn-secondary btn-sm" href="javascript:collapseAll()">
+                <i class="fas fa-compress"></i> 收起全部
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="tmf-tree-container">
+            <div class="tmf-search mb-3">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    </div>
+                    <input type="text" id="tmfTreeSearch" class="form-control" placeholder="搜索区域、部分、文档类型或文档...">
+                </div>
+            </div>
+            
+            <div class="alert alert-info upload-instructions">
+                <i class="fas fa-info-circle"></i> 您可以直接将文件拖拽到文档类型节点上进行上传。支持批量拖拽多个文件。
+            </div>
+            
+            <div class="tmf-tree">
+                <ul id="tmfRootTree" class="fa-ul">
+                    @foreach (var zone in Model.Zones)
+                    {
+                        <li class="tmf-node zone-node">
+                            <span class="fa-li">
+                                <i class="fas fa-folder node-toggle"></i>
+                            </span>
+                            <div class="node-content">
+                                <div class="node-header" data-id="@zone.Id" data-type="zone">
+                                    <span class="node-number">@zone.Number</span>
+                                    <span class="node-name">@zone.Name</span>
+                                    <span class="badge badge-primary badge-pill ml-2">@zone.DocumentCount</span>
+                                </div>
+                                <div class="node-description">@zone.Description</div>
+                                
+                                @if (zone.Sections.Any())
+                                {
+                                    <ul class="fa-ul node-children">
+                                        @foreach (var sectionItem in zone.Sections)
+                                        {
+                                            <li class="tmf-node section-node">
+                                                <span class="fa-li">
+                                                    <i class="fas fa-folder node-toggle"></i>
+                                                </span>
+                                                <div class="node-content">
+                                                    <div class="node-header" data-id="@sectionItem.Id" data-type="section">
+                                                        <span class="node-number">@sectionItem.Number</span>
+                                                        <span class="node-name">@sectionItem.Name</span>
+                                                        <span class="badge badge-info badge-pill ml-2">@sectionItem.DocumentCount</span>
+                                                    </div>
+                                                    <div class="node-description">@sectionItem.Description</div>
+                                                    
+                                                    @if (sectionItem.Artifacts.Any())
+                                                    {
+                                                        <ul class="fa-ul node-children">
+                                                            @foreach (var artifact in sectionItem.Artifacts)
+                                                            {
+                                                                <li class="tmf-node artifact-node">
+                                                                    <span class="fa-li">
+                                                                        <i class="fas fa-folder node-toggle"></i>
+                                                                    </span>
+                                                                    <div class="node-content">
+                                                                        <div class="node-header" data-id="@artifact.Id" data-type="artifact">
+                                                                            <span class="node-number">@artifact.Number</span>
+                                                                            <span class="node-name">@artifact.Name</span>
+                                                                            <span class="badge badge-success badge-pill ml-2">@artifact.DocumentCount</span>
+                                                                            @if (artifact.IsRequired)
+                                                                            {
+                                                                                <span class="badge badge-danger ml-1">必需</span>
+                                                                            }
+                                                                            @if (artifact.IsEssential)
+                                                                            {
+                                                                                <span class="badge badge-warning ml-1">重要</span>
+                                                                            }
+                                                                            <a href="@Url.Action("Create", "Documents", new { artifactId = artifact.Id })" class="btn btn-sm btn-outline-primary ml-2">
+                                                                                <i class="fas fa-plus"></i>
+                                                                            </a>
+                                                                            <a href="@Url.Action("ByArtifact", "Documents", new { id = artifact.Id })" class="btn btn-sm btn-outline-info ml-1">
+                                                                                <i class="fas fa-list"></i>
+                                                                            </a>
+                                                                        </div>
+                                                                        <div class="node-description">@artifact.Description</div>
+                                                                        
+                                                                        <div class="dropzone-container" id="dropzone-@artifact.Id" data-artifact-id="@artifact.Id">
+                                                                            <div class="dropzone-message">
+                                                                                <i class="fas fa-cloud-upload-alt"></i>
+                                                                                <span>拖拽文件至此上传</span>
+                                                                            </div>
+                                                                            <div class="dropzone-progress d-none">
+                                                                                <div class="progress">
+                                                                                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                                                                                </div>
+                                                                                <small class="text-muted upload-status">准备上传...</small>
+                                                                            </div>
+                                                                        </div>
+                                                                        
+                                                                        @if (artifact.Documents.Any())
+                                                                        {
+                                                                            <ul class="fa-ul node-children">
+                                                                                @foreach (var document in artifact.Documents)
+                                                                                {
+                                                                                    <li class="tmf-node document-node">
+                                                                                        <span class="fa-li">
+                                                                                            <i class="fas fa-file-alt"></i>
+                                                                                        </span>
+                                                                                        <div class="node-content">
+                                                                                            <div class="node-header" data-id="@document.Id" data-type="document">
+                                                                                                <span class="node-title">@document.Title</span>
+                                                                                                <span class="badge @GetStatusBadgeClass(document.Status) ml-2">@document.Status</span>
+                                                                                                @if (document.IsArchived)
+                                                                                                {
+                                                                                                    <span class="badge badge-secondary ml-1">已归档</span>
+                                                                                                }
+                                                                                                <span class="badge badge-light ml-1">版本: @document.VersionCount</span>
+                                                                                                <a href="@Url.Action("Details", "Documents", new { id = document.Id })" class="btn btn-sm btn-outline-primary ml-2">
+                                                                                                    <i class="fas fa-eye"></i>
+                                                                                                </a>
+                                                                                                <a href="@Url.Action("Edit", "Documents", new { id = document.Id })" class="btn btn-sm btn-outline-secondary ml-1">
+                                                                                                    <i class="fas fa-edit"></i>
+                                                                                                </a>
+                                                                                            </div>
+                                                                                            <div class="document-info">
+                                                                                                <small>
+                                                                                                    <span class="text-muted">ID: @document.DocumentIdentifier</span>
+                                                                                                    <span class="text-muted ml-2">作者: @document.Author</span>
+                                                                                                </small>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </li>
+                                                                                }
+                                                                            </ul>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <div class="no-documents">
+                                                                                <small class="text-muted">暂无文档</small>
+                                                                            </div>
+                                                                        }
+                                                                    </div>
+                                                                </li>
+                                                            }
+                                                        </ul>
+                                                    }
+                                                </div>
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 文档上传模态框 -->
+<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">上传文档</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="batchUploadForm">
+                    <input type="hidden" id="artifactId" name="artifactId" value="">
+                    
+                    <div class="form-group">
+                        <label>文档类型</label>
+                        <p id="selectedArtifactName" class="form-control-static"></p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>选择的文件</label>
+                        <div id="fileList" class="list-group">
+                            <!-- 文件列表将在这里动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="author">作者</label>
+                        <input type="text" class="form-control" id="author" name="author" readonly value="@ViewBag.AuthorName">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="trialIdentifier">试验标识符（可选）</label>
+                        <input type="text" class="form-control" id="trialIdentifier" name="trialIdentifier">
+                    </div>
+                </form>
+                
+                <div class="upload-progress d-none">
+                    <h6>上传进度</h6>
+                    <div class="progress mb-3">
+                        <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <div id="uploadStatus"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="$('#uploadModal').modal('hide')">取消</button>
+                <button type="button" class="btn btn-primary" id="startUploadBtn">开始上传</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    public string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "草稿" => "badge-secondary",
+            "待审核" => "badge-warning",
+            "已批准" => "badge-success",
+            "已退回" => "badge-danger",
+            "已过期" => "badge-dark",
+            _ => "badge-light"
+        };
+    }
+}
+
+@section Styles {
+    <style>
+        .tmf-tree-container {
+            max-height: 800px;
+            overflow-y: auto;
+        }
+        
+        .tmf-tree ul.fa-ul {
+            margin-left: 2.5em;
+        }
+        
+        .tmf-node {
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        .node-content {
+            background-color: #fff;
+            border-radius: 4px;
+            border-left: 4px solid #f8f9fc;
+            padding: 8px 12px;
+            transition: all 0.2s;
+        }
+        
+        .zone-node > .node-content {
+            border-left-color: #4e73df;
+            background-color: rgba(78, 115, 223, 0.05);
+        }
+        
+        .section-node > .node-content {
+            border-left-color: #36b9cc;
+            background-color: rgba(54, 185, 204, 0.05);
+        }
+        
+        .artifact-node > .node-content {
+            border-left-color: #1cc88a;
+            background-color: rgba(28, 200, 138, 0.05);
+        }
+        
+        .document-node > .node-content {
+            border-left-color: #f6c23e;
+            background-color: rgba(246, 194, 62, 0.05);
+        }
+        
+        .node-toggle {
+            cursor: pointer;
+            color: #4e73df;
+        }
+        
+        .node-header {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .node-number {
+            margin-right: 10px;
+            color: #5a5c69;
+            font-family: monospace;
+        }
+        
+        .node-description {
+            font-size: 0.85rem;
+            color: #6e707e;
+            margin-top: 4px;
+        }
+        
+        .node-children {
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .tmf-node.expanded > .node-content > .node-children {
+            display: block;
+        }
+        
+        .tmf-node.expanded > span > .node-toggle:before {
+            content: "\f07c";
+        }
+        
+        .document-info {
+            margin-top: 4px;
+        }
+        
+        .no-documents {
+            margin-top: 8px;
+            padding: 8px;
+            background-color: #f8f9fc;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        /* 拖放上传样式 */
+        .dropzone-container {
+            margin-top: 10px;
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            text-align: center;
+            background-color: #f9f9f9;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .dropzone-container.dragover {
+            border-color: #4e73df;
+            background-color: rgba(78, 115, 223, 0.1);
+        }
+        
+        .dropzone-message {
+            color: #6e707e;
+        }
+        
+        .dropzone-message i {
+            font-size: 1.5rem;
+            margin-right: 10px;
+            color: #4e73df;
+        }
+        
+        .upload-instructions {
+            margin-bottom: 20px;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // 树状结构展开/折叠功能
+            $('.node-toggle').on('click', function() {
+                var node = $(this).closest('.tmf-node');
+                node.toggleClass('expanded');
+            });
+            
+            // 搜索功能
+            $('#tmfTreeSearch').on('keyup', function() {
+                var value = $(this).val().toLowerCase();
+                $('.tmf-node').each(function() {
+                    var nodeText = $(this).find('.node-header').text().toLowerCase();
+                    var nodeDesc = $(this).find('.node-description').text().toLowerCase();
+                    var isMatch = nodeText.indexOf(value) > -1 || nodeDesc.indexOf(value) > -1;
+                    
+                    if (isMatch) {
+                        $(this).show();
+                        // 确保父节点也可见
+                        $(this).parents('.tmf-node').show().addClass('expanded');
+                    } else {
+                        // 如果有子节点匹配，则不隐藏
+                        var hasMatchingChild = $(this).find('.tmf-node:visible').length > 0;
+                        if (!hasMatchingChild) {
+                            $(this).hide();
+                        }
+                    }
+                });
+                
+                if (value) {
+                    // 展开所有匹配的节点
+                    $('.tmf-node:visible').addClass('expanded');
+                } else {
+                    // 搜索为空时恢复默认状态
+                    $('.tmf-node').show();
+                    $('.tmf-node').removeClass('expanded');
+                }
+            });
+            
+            // 拖放上传功能
+            $('.dropzone-container').each(function() {
+                var container = $(this);
+                var artifactId = container.data('artifact-id');
+                
+                container.on('dragover', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    $(this).addClass('dragover');
+                });
+                
+                container.on('dragleave', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    $(this).removeClass('dragover');
+                });
+                
+                container.on('drop', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    $(this).removeClass('dragover');
+                    
+                    var files = e.originalEvent.dataTransfer.files;
+                    if (files.length > 0) {
+                        showUploadModal(artifactId, files);
+                    }
+                });
+                
+                container.on('click', function() {
+                    // 点击也可以触发文件选择
+                    var fileInput = $('<input type="file" multiple style="display:none">');
+                    $('body').append(fileInput);
+                    fileInput.on('change', function() {
+                        if (this.files.length > 0) {
+                            showUploadModal(artifactId, this.files);
+                        }
+                        $(this).remove();
+                    });
+                    fileInput.trigger('click');
+                });
+            });
+            
+            // 上传模态框功能
+            $('#startUploadBtn').on('click', function() {
+                uploadFiles();
+            });
+            
+            // 展开全部节点
+            window.expandAll = function() {
+                $('.tmf-node').addClass('expanded');
+            };
+            
+            // 收起全部节点
+            window.collapseAll = function() {
+                $('.tmf-node').removeClass('expanded');
+            };
+            
+            // 显示上传模态框
+            function showUploadModal(artifactId, files) {
+                // 获取文档类型名称
+                var artifactName = $('.node-header[data-id="' + artifactId + '"][data-type="artifact"]').find('.node-name').text();
+                var artifactNumber = $('.node-header[data-id="' + artifactId + '"][data-type="artifact"]').find('.node-number').text();
+                
+                $('#artifactId').val(artifactId);
+                $('#selectedArtifactName').text(artifactNumber + ' ' + artifactName);
+                
+                // 清空文件列表
+                $('#fileList').empty();
+                
+                // 添加文件到列表
+                for (var i = 0; i < files.length; i++) {
+                    var file = files[i];
+                    var fileItem = $('<div class="list-group-item">' +
+                        '<div class="d-flex justify-content-between align-items-center">' +
+                        '<div><i class="fas fa-file mr-2"></i>' + file.name + '</div>' +
+                        '<div><small class="text-muted">' + formatFileSize(file.size) + '</small></div>' +
+                        '</div>' +
+                        '<div class="form-group mt-2">' +
+                        '<input type="text" class="form-control form-control-sm" placeholder="文档标题" name="title_' + i + '" value="' + getFilenameWithoutExtension(file.name) + '" required>' +
+                        '</div>' +
+                        '<div class="form-group">' +
+                        '<textarea class="form-control form-control-sm" placeholder="文档描述（可选）" name="description_' + i + '" rows="2"></textarea>' +
+                        '</div>' +
+                        '</div>');
+                    
+                    $('#fileList').append(fileItem);
+                }
+                
+                // 存储文件对象供后续上传使用
+                window.filesToUpload = files;
+                
+                // 显示模态框
+                $('#uploadModal').modal('show');
+                
+                // 重置上传进度
+                $('.upload-progress').addClass('d-none');
+                $('.progress-bar').css('width', '0%');
+                $('#uploadStatus').empty();
+            }
+            
+            // 上传文件
+            function uploadFiles() {
+                var files = window.filesToUpload;
+                var artifactId = $('#artifactId').val();
+                var author = $('#author').val();
+                var trialIdentifier = $('#trialIdentifier').val();
+                
+                if (!author) {
+                    alert('请输入作者名称');
+                    return;
+                }
+                
+                // 检查所有标题是否已填写
+                var allTitlesFilled = true;
+                $('input[name^="title_"]').each(function() {
+                    if (!$(this).val()) {
+                        allTitlesFilled = false;
+                        $(this).addClass('is-invalid');
+                    } else {
+                        $(this).removeClass('is-invalid');
+                    }
+                });
+                
+                if (!allTitlesFilled) {
+                    alert('请为所有文档填写标题');
+                    return;
+                }
+                
+                // 显示上传进度
+                $('.upload-progress').removeClass('d-none');
+                $('#startUploadBtn').prop('disabled', true);
+                
+                // 批量上传文件
+                var totalFiles = files.length;
+                var uploadedFiles = 0;
+                var failedFiles = 0;
+                var successFiles = 0;
+                
+                // 创建FormData对象用于批量上传
+                var formData = new FormData();
+                formData.append('artifactId', artifactId);
+                formData.append('author', author);
+                formData.append('trialIdentifier', trialIdentifier);
+                
+                // 添加所有文件
+                for (var i = 0; i < files.length; i++) {
+                    formData.append('files', files[i]);
+                    formData.append('titles[' + i + ']', $('input[name="title_' + i + '"]').val());
+                    formData.append('descriptions[' + i + ']', $('textarea[name="description_' + i + '"]').val());
+                }
+                
+                // 发送批量上传请求
+                $.ajax({
+                    url: '@Url.Action("BatchUpload", "Documents")',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    xhr: function() {
+                        var xhr = new window.XMLHttpRequest();
+                        xhr.upload.addEventListener('progress', function(e) {
+                            if (e.lengthComputable) {
+                                var percent = Math.round((e.loaded / e.total) * 100);
+                                $('.upload-progress .progress-bar').css('width', percent + '%');
+                                $('#uploadStatus').text('上传中... ' + percent + '%');
+                            }
+                        }, false);
+                        return xhr;
+                    },
+                    success: function(response) {
+                        console.log('Upload response:', response);
+                        if (response && response.success !== undefined) {
+                            successFiles = response.successCount;
+                            failedFiles = response.failedCount;
+                            
+                            // 更新每个文件的状态
+                            if (response.results && response.results.length > 0) {
+                                for (var i = 0; i < response.results.length; i++) {
+                                    var result = response.results[i];
+                                    updateFileStatus(i, result.success, result.message);
+                                }
+                            }
+                            
+                            uploadCompleted(successFiles, failedFiles);
+                        } else {
+                            $('#uploadStatus').html('<div class="alert alert-danger">上传失败: 服务器响应格式错误</div>');
+                            $('#startUploadBtn').prop('disabled', false);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.log('Upload error:', {xhr: xhr, status: status, error: error});
+                        var errorMessage = '上传失败';
+                        try {
+                            if (xhr.responseJSON) {
+                                errorMessage = xhr.responseJSON.message || error;
+                            } else if (xhr.responseText) {
+                                var response = JSON.parse(xhr.responseText);
+                                errorMessage = response.message || error;
+                            } else {
+                                errorMessage = error || status;
+                            }
+                        } catch (e) {
+                            console.error('Error parsing response:', e);
+                            errorMessage = error || status;
+                        }
+                        
+                        $('#uploadStatus').html('<div class="alert alert-danger">上传失败: ' + errorMessage + '</div>');
+                        $('#startUploadBtn').prop('disabled', false);
+                    }
+                });
+            }
+            
+            // 更新单个文件的上传进度
+            function updateFileProgress(index, percent) {
+                var fileItem = $('#fileList .list-group-item').eq(index);
+                var progressBar = fileItem.find('.progress-bar');
+                
+                if (progressBar.length === 0) {
+                    fileItem.append('<div class="progress mt-2" style="height: 5px;"><div class="progress-bar" role="progressbar"></div></div><small class="text-muted file-status">上传中...</small>');
+                    progressBar = fileItem.find('.progress-bar');
+                }
+                
+                progressBar.css('width', percent + '%');
+            }
+            
+            // 更新文件状态
+            function updateFileStatus(index, success, message) {
+                var fileItem = $('#fileList .list-group-item').eq(index);
+                var statusEl = fileItem.find('.file-status');
+                
+                statusEl.text(message);
+                if (success) {
+                    statusEl.removeClass('text-danger').addClass('text-success');
+                } else {
+                    statusEl.removeClass('text-success').addClass('text-danger');
+                }
+            }
+            
+            // 上传完成处理
+            function uploadCompleted(success, failed) {
+                $('#startUploadBtn').prop('disabled', false).text('完成');
+                
+                var message = '上传完成！成功: ' + success + ' 个文件';
+                if (failed > 0) {
+                    message += '，失败: ' + failed + ' 个文件';
+                }
+                
+                $('#uploadStatus').html(message + '<br><small class="text-muted mt-2">页面将在3秒后刷新...</small>');
+                
+                // 3秒后刷新页面
+                setTimeout(function() {
+                    location.reload();
+                }, 3000);
+            }
+            
+            // 格式化文件大小
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                var k = 1024;
+                var sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                var i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            // 获取不带扩展名的文件名
+            function getFilenameWithoutExtension(filename) {
+                return filename.replace(/\.[^/.]+$/, "");
+            }
+        });
+    </script>
+} 

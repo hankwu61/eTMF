@@ -1,0 +1,180 @@
+@model ETMF.Models.Artifact
+
+@{
+    ViewData["Title"] = "文档类型详情";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-info-circle"></i> 文档类型详情
+        </h6>
+        <div class="btn-group" role="group">
+            <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@Model.Id">
+                <i class="fas fa-edit"></i> 编辑
+            </a>
+            <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@Model.Id">
+                <i class="fas fa-trash"></i> 删除
+            </a>
+            <a class="btn btn-secondary btn-sm" asp-action="Index">
+                <i class="fas fa-arrow-left"></i> 返回列表
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <dl class="row">
+                    <dt class="col-sm-4">所属区域-部分</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.Section != null)
+                        {
+                            <a asp-controller="Sections" asp-action="Details" asp-route-id="@Model.SectionId">
+                                @if (Model.Section.Zone != null)
+                                {
+                                    <text>@Model.Section.Zone.Number.@Model.Section.Number - @Model.Section.Name</text>
+                                }
+                                else
+                                {
+                                    <text>@Model.Section.Number - @Model.Section.Name</text>
+                                }
+                            </a>
+                        }
+                        else
+                        {
+                            <text>未分配部分</text>
+                        }
+                    </dd>
+                    
+                    <dt class="col-sm-4">编号</dt>
+                    <dd class="col-sm-8">@Model.Number</dd>
+                    
+                    <dt class="col-sm-4">名称</dt>
+                    <dd class="col-sm-8">@Model.Name</dd>
+                    
+                    <dt class="col-sm-4">描述</dt>
+                    <dd class="col-sm-8">@Model.Description</dd>
+                    
+                    <dt class="col-sm-4">必要性</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.IsRequired)
+                        {
+                            <span class="badge badge-danger">必需</span>
+                        }
+                        @if (Model.IsEssential)
+                        {
+                            <span class="badge badge-warning">关键</span>
+                        }
+                    </dd>
+                    
+                    <dt class="col-sm-4">文档数量</dt>
+                    <dd class="col-sm-8">@(Model.Documents?.Count ?? 0)</dd>
+                    
+                    <dt class="col-sm-4">创建时间</dt>
+                    <dd class="col-sm-8">@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+                    
+                    @if (Model.UpdatedAt.HasValue)
+                    {
+                        <dt class="col-sm-4">更新时间</dt>
+                        <dd class="col-sm-8">@Model.UpdatedAt.Value.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+                    }
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.Documents != null && Model.Documents.Any())
+{
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-file"></i> 文档列表
+            </h6>
+            <div class="dropdown no-arrow">
+                <a class="btn btn-primary btn-sm" asp-controller="Documents" asp-action="Create" asp-route-artifactId="@Model.Id">
+                    <i class="fas fa-plus fa-sm"></i> 添加文档
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>标题</th>
+                            <th>作者</th>
+                            <th>状态</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var document in Model.Documents.OrderByDescending(d => d.CreatedAt))
+                        {
+                            <tr>
+                                <td>@document.Title</td>
+                                <td>@document.Author</td>
+                                <td>
+                                    @switch (document.Status)
+                                    {
+                                        case "Draft":
+                                            <span class="badge badge-warning">草稿</span>
+                                            break;
+                                        case "Final":
+                                            <span class="badge badge-success">最终版</span>
+                                            break;
+                                        case "Approved":
+                                            <span class="badge badge-primary">已批准</span>
+                                            break;
+                                        case "Obsolete":
+                                            <span class="badge badge-danger">已废弃</span>
+                                            break;
+                                        default:
+                                            <span class="badge badge-secondary">@document.Status</span>
+                                            break;
+                                    }
+                                    @if (document.IsArchived)
+                                    {
+                                        <span class="badge badge-dark">已归档</span>
+                                    }
+                                </td>
+                                <td>@document.CreatedAt.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a class="btn btn-outline-info btn-sm" asp-controller="Documents" asp-action="Details" asp-route-id="@document.Id">
+                                            <i class="fas fa-info-circle"></i> 详情
+                                        </a>
+                                        <a class="btn btn-outline-success btn-sm" asp-controller="Documents" asp-action="Download" asp-route-id="@document.Id">
+                                            <i class="fas fa-download"></i> 下载
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-file"></i> 文档列表
+            </h6>
+            <div class="dropdown no-arrow">
+                <a class="btn btn-primary btn-sm" asp-controller="Documents" asp-action="Create" asp-route-artifactId="@Model.Id">
+                    <i class="fas fa-plus fa-sm"></i> 添加文档
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                该文档类型下暂无文档，请点击"添加文档"按钮创建。
+            </div>
+        </div>
+    </div>
+} 

@@ -1,0 +1,242 @@
+@model ETMF.Models.Document
+
+@{
+    ViewData["Title"] = "文档详情";
+    var currentVersion = ViewData["CurrentVersion"] as ETMF.Models.DocumentVersion;
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-info-circle"></i> 文档详情
+        </h6>
+        <div class="btn-group" role="group">
+            <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@Model.Id">
+                <i class="fas fa-edit"></i> 编辑
+            </a>
+            <a class="btn btn-success btn-sm" asp-action="Download" asp-route-id="@Model.Id">
+                <i class="fas fa-download"></i> 下载
+            </a>
+            <a class="btn btn-info btn-sm" asp-action="UploadNewVersion" asp-route-id="@Model.Id">
+                <i class="fas fa-file-upload"></i> 上传新版本
+            </a>
+            <a class="btn btn-secondary btn-sm" asp-action="Index">
+                <i class="fas fa-arrow-left"></i> 返回列表
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h5 class="text-primary">基本信息</h5>
+                <dl class="row">
+                    <dt class="col-sm-4">文档标识符</dt>
+                    <dd class="col-sm-8">@Model.DocumentIdentifier</dd>
+                    
+                    <dt class="col-sm-4">标题</dt>
+                    <dd class="col-sm-8">@Model.Title</dd>
+                    
+                    <dt class="col-sm-4">作者</dt>
+                    <dd class="col-sm-8">@Model.Author</dd>
+                    
+                    <dt class="col-sm-4">状态</dt>
+                    <dd class="col-sm-8">
+                        @switch (Model.Status)
+                        {
+                            case "Draft":
+                                <span class="badge badge-warning">草稿</span>
+                                break;
+                            case "Final":
+                                <span class="badge badge-success">最终版</span>
+                                break;
+                            case "Approved":
+                                <span class="badge badge-primary">已批准</span>
+                                break;
+                            case "Obsolete":
+                                <span class="badge badge-danger">已废弃</span>
+                                break;
+                            default:
+                                <span class="badge badge-secondary">@Model.Status</span>
+                                break;
+                        }
+                        @if (Model.IsArchived)
+                        {
+                            <span class="badge badge-dark">已归档</span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-4">描述</dt>
+                    <dd class="col-sm-8">@Model.Description</dd>
+                    
+                    <dt class="col-sm-4">试验标识符</dt>
+                    <dd class="col-sm-8">@Model.TrialIdentifier</dd>
+                    
+                    <dt class="col-sm-4">文档类型</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.Artifact != null)
+                        {
+                            <a asp-controller="Artifacts" asp-action="Details" asp-route-id="@Model.ArtifactId">
+                                @if (Model.Artifact.Section != null && Model.Artifact.Section.Zone != null)
+                                {
+                                    @Model.Artifact.Section.Zone.Number<text>.</text>@Model.Artifact.Section.Number<text>.</text>@Model.Artifact.Number<text> - </text>@Model.Artifact.Name
+                                }
+                                else
+                                {
+                                    @Model.Artifact.Number<text> - </text>@Model.Artifact.Name
+                                }
+                            </a>
+                        }
+                        else
+                        {
+                            <span>未指定文档类型</span>
+                        }
+                    </dd>
+                    
+                    <dt class="col-sm-4">路径</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.Artifact != null && Model.Artifact.Section != null)
+                        {
+                            if (Model.Artifact.Section.Zone != null)
+                            {
+                                <a asp-controller="Zones" asp-action="Details" asp-route-id="@Model.Artifact.Section.ZoneId">
+                                    @Model.Artifact.Section.Zone.Number - @Model.Artifact.Section.Zone.Name
+                                </a>
+                                <text> / </text>
+                            }
+                            <a asp-controller="Sections" asp-action="Details" asp-route-id="@Model.Artifact.SectionId">
+                                @Model.Artifact.Section.Number - @Model.Artifact.Section.Name
+                            </a>
+                        }
+                        else
+                        {
+                            <span>未指定路径</span>
+                        }
+                    </dd>
+                    
+                    <dt class="col-sm-4">创建时间</dt>
+                    <dd class="col-sm-8">@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+                    
+                    <dt class="col-sm-4">来源</dt>
+                    <dd class="col-sm-8">@Model.Source</dd>
+                </dl>
+            </div>
+            
+            <div class="col-md-6">
+                <h5 class="text-primary">当前版本信息</h5>
+                @if (currentVersion != null)
+                {
+                    <dl class="row">
+                        <dt class="col-sm-4">版本号</dt>
+                        <dd class="col-sm-8">v@(Model.Versions?.Count ?? 0)</dd>
+                        
+                        <dt class="col-sm-4">文件名</dt>
+                        <dd class="col-sm-8">@currentVersion.FileName</dd>
+                        
+                        <dt class="col-sm-4">文件大小</dt>
+                        <dd class="col-sm-8">@(currentVersion.FileSize / 1024) KB</dd>
+                        
+                        <dt class="col-sm-4">MIME类型</dt>
+                        <dd class="col-sm-8">@currentVersion.MimeType</dd>
+                        
+                        <dt class="col-sm-4">版本说明</dt>
+                        <dd class="col-sm-8">@currentVersion.VersionComment</dd>
+                        
+                        <dt class="col-sm-4">上传时间</dt>
+                        <dd class="col-sm-8">@currentVersion.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+                        
+                        <dt class="col-sm-4">操作</dt>
+                        <dd class="col-sm-8">
+                            <a class="btn btn-outline-success btn-sm" asp-action="Download" asp-route-id="@Model.Id">
+                                <i class="fas fa-download"></i> 下载
+                            </a>
+                        </dd>
+                    </dl>
+                }
+                else
+                {
+                    <div class="alert alert-warning">
+                        无法获取当前版本信息，请尝试重新上传文档。
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.Versions != null && Model.Versions.Count > 0)
+{
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-history"></i> 版本历史
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>版本号</th>
+                            <th>文件名</th>
+                            <th>大小</th>
+                            <th>版本说明</th>
+                            <th>上传时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var version in Model.Versions.OrderByDescending(v => v.CreatedAt))
+                        {
+                            <tr class="@(version.Id == Model.CurrentVersionId ? "table-primary" : "")">
+                                <td>v@(Model.Versions.Count - Model.Versions.ToList().IndexOf(version))</td>
+                                <td>@version.FileName</td>
+                                <td>@(version.FileSize / 1024) KB</td>
+                                <td>@version.VersionComment</td>
+                                <td>@version.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                <td>
+                                    <a class="btn btn-outline-success btn-sm" href="@version.FilePath" target="_blank">
+                                        <i class="fas fa-download"></i> 下载
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@if (Model.Metadata != null && Model.Metadata.Any())
+{
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-tags"></i> 元数据
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>名称</th>
+                            <th>值</th>
+                            <th>类型</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var metadata in Model.Metadata.OrderBy(m => m.Name))
+                        {
+                            <tr>
+                                <td>@metadata.Name</td>
+                                <td>@metadata.Value</td>
+                                <td>@metadata.DataType</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+} 

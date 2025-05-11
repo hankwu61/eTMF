@@ -1,0 +1,86 @@
+@model IEnumerable<ETMF.Models.Artifact>
+
+@{
+    ViewData["Title"] = "文档类型管理";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-file-alt"></i> 文档类型管理
+        </h6>
+        <div class="dropdown no-arrow">
+            <a class="btn btn-primary btn-sm" asp-action="Create">
+                <i class="fas fa-plus fa-sm"></i> 创建新文档类型
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>区域-部分</th>
+                        <th>编号</th>
+                        <th>名称</th>
+                        <th>描述</th>
+                        <th>文档数量</th>
+                        <th>必要性</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @if (item.Section != null && item.Section.Zone != null)
+                                {
+                                    <text>@item.Section.Zone.Number.@item.Section.Number - @item.Section.Name</text>
+                                }
+                                else if (item.Section != null)
+                                {
+                                    <text>@item.Section.Number - @item.Section.Name</text>
+                                }
+                                else
+                                {
+                                    <text>未分配部分</text>
+                                }
+                            </td>
+                            <td>@item.Number</td>
+                            <td>@item.Name</td>
+                            <td>@item.Description</td>
+                            <td>@(item.Documents?.Count ?? 0)</td>
+                            <td>
+                                @if (item.IsRequired)
+                                {
+                                    <span class="badge badge-danger">必需</span>
+                                }
+                                @if (item.IsEssential)
+                                {
+                                    <span class="badge badge-warning">关键</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a class="btn btn-outline-info btn-sm" asp-action="Details" asp-route-id="@item.Id">
+                                        <i class="fas fa-info-circle"></i> 详情
+                                    </a>
+                                    <a class="btn btn-outline-primary btn-sm" asp-action="Edit" asp-route-id="@item.Id">
+                                        <i class="fas fa-edit"></i> 编辑
+                                    </a>
+                                    <a class="btn btn-outline-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id">
+                                        <i class="fas fa-trash"></i> 删除
+                                    </a>
+                                    <a class="btn btn-outline-success btn-sm" asp-controller="Documents" asp-action="ByArtifact" asp-route-id="@item.Id">
+                                        <i class="fas fa-file"></i> 查看文档
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div> 

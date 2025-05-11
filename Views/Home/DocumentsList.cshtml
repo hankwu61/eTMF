@@ -1,0 +1,171 @@
+@model ETMF.Models.ViewModels.DocumentsListViewModel
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas @Model.IconClass"></i> @Model.Title
+        </h6>
+        <div>
+            @if ((await AuthorizationService.AuthorizeAsync(User, "CanUploadDocuments")).Succeeded)
+            {
+                <a class="btn btn-sm btn-success" asp-controller="Documents" asp-action="Create">
+                    <i class="fas fa-plus"></i> 上傳新文檔
+                </a>
+            }
+            <a class="btn btn-sm btn-primary" asp-controller="Home" asp-action="Index">
+                <i class="fas fa-home"></i> 返回儀表板
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <p class="mb-4">@Model.SubTitle</p>
+        
+        @if (Model.Documents.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="documentsTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>標題</th>
+                            <th>文檔識別碼</th>
+                            <th>文檔類型</th>
+                            <th>作者</th>
+                            <th>創建日期</th>
+                            <th>最後更新</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var doc in Model.Documents)
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-controller="Documents" asp-action="Details" asp-route-id="@doc.Id">@doc.Title</a>
+                                    @if (doc.IsArchived)
+                                    {
+                                        <span class="badge badge-secondary ml-1">已歸檔</span>
+                                    }
+                                </td>
+                                <td>@doc.DocumentIdentifier</td>
+                                <td>
+                                    @if (doc.Artifact != null)
+                                    {
+                                        <span title="@(doc.Artifact.Section?.Zone?.Name ?? "") > @(doc.Artifact.Section?.Name ?? "")">
+                                            @doc.Artifact.Name
+                                        </span>
+                                    }
+                                </td>
+                                <td>@doc.Author</td>
+                                <td>@doc.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>@(doc.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-controller="Documents" asp-action="Details" asp-route-id="@doc.Id" 
+                                           class="btn btn-sm btn-outline-primary" title="查看詳情">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        
+                                        @if ((Model.StatusFilter == "草稿" || Model.StatusFilter == "已退回") && 
+                                              (await AuthorizationService.AuthorizeAsync(User, "CanUploadDocuments")).Succeeded)
+                                        {
+                                            <a asp-controller="Documents" asp-action="Edit" asp-route-id="@doc.Id" 
+                                               class="btn btn-sm btn-outline-secondary" title="編輯文檔">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            
+                                            <a asp-controller="Documents" asp-action="SubmitForReview" asp-route-id="@doc.Id" 
+                                               class="btn btn-sm btn-outline-warning" title="提交審核"
+                                               onclick="return confirm('確定要提交此文檔進行審核嗎？');">
+                                                <i class="fas fa-paper-plane"></i>
+                                            </a>
+                                        }
+                                        
+                                        @if (Model.StatusFilter == "待審核" && 
+                                             (await AuthorizationService.AuthorizeAsync(User, "CanApproveDocuments")).Succeeded)
+                                        {
+                                            <a asp-controller="Documents" asp-action="Approve" asp-route-id="@doc.Id" 
+                                               class="btn btn-sm btn-outline-success" title="批准文檔"
+                                               onclick="return confirm('確定要批准此文檔嗎？');">
+                                                <i class="fas fa-check"></i>
+                                            </a>
+                                        }
+                                        
+                                        @if (Model.StatusFilter == "待審核" && 
+                                             (await AuthorizationService.AuthorizeAsync(User, "CanRejectDocuments")).Succeeded)
+                                        {
+                                            <a asp-controller="Documents" asp-action="Reject" asp-route-id="@doc.Id" 
+                                               class="btn btn-sm btn-outline-danger" title="退回文檔"
+                                               onclick="return confirm('確定要退回此文檔嗎？');">
+                                                <i class="fas fa-times"></i>
+                                            </a>
+                                        }
+                                        
+                                        @if (Model.StatusFilter == "已批准" && !doc.IsArchived && 
+                                             (await AuthorizationService.AuthorizeAsync(User, "CanArchiveDocuments")).Succeeded)
+                                        {
+                                            <a asp-controller="Documents" asp-action="Archive" asp-route-id="@doc.Id" 
+                                               class="btn btn-sm btn-outline-info" title="歸檔文檔"
+                                               onclick="return confirm('確定要歸檔此文檔嗎？');">
+                                                <i class="fas fa-archive"></i>
+                                            </a>
+                                        }
+                                        
+                                        @if (Model.StatusFilter == "已歸檔" && 
+                                             (await AuthorizationService.AuthorizeAsync(User, "CanArchiveDocuments")).Succeeded)
+                                        {
+                                            <a asp-controller="Documents" asp-action="Unarchive" asp-route-id="@doc.Id" 
+                                               class="btn btn-sm btn-outline-info" title="取消歸檔"
+                                               onclick="return confirm('確定要取消歸檔此文檔嗎？');">
+                                                <i class="fas fa-box-open"></i>
+                                            </a>
+                                        }
+                                        
+                                        @if ((Model.StatusFilter == "已過期" || Model.StatusFilter == "已批准") && 
+                                             (await AuthorizationService.AuthorizeAsync(User, "CanUploadDocuments")).Succeeded)
+                                        {
+                                            <a asp-controller="Documents" asp-action="UploadNewVersion" asp-route-id="@doc.Id" 
+                                               class="btn btn-sm btn-outline-primary" title="上傳新版本">
+                                                <i class="fas fa-upload"></i>
+                                            </a>
+                                        }
+                                        
+                                        <a asp-controller="Documents" asp-action="Download" asp-route-id="@doc.Id" 
+                                           class="btn btn-sm btn-outline-dark" title="下載文檔">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> 沒有找到@Model.StatusFilter文檔。
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#documentsTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/zh.json'
+                },
+                order: [[4, 'desc']], // 按創建日期降序排序
+                pageLength: 25
+            });
+        });
+    </script>
+} 

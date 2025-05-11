@@ -1,0 +1,82 @@
+@model List<ETMF.Models.ViewModels.UserRoleViewModel>
+
+@{
+    ViewData["Title"] = $"管理角色用戶 - {ViewBag.RoleName}";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-users"></i> 管理角色用戶 - @ViewBag.RoleName
+        </h6>
+    </div>
+    <div class="card-body">
+        <form asp-action="ManageUsers" method="post">
+            <input type="hidden" name="id" value="@ViewBag.RoleId" />
+            
+            <div class="table-responsive">
+                <table class="table table-bordered" id="usersTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>用戶名</th>
+                            <th>全名</th>
+                            <th>分配角色</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            <tr>
+                                <td>
+                                    @Model[i].UserName
+                                    <input type="hidden" asp-for="@Model[i].UserId" />
+                                    <input type="hidden" asp-for="@Model[i].UserName" />
+                                    <input type="hidden" asp-for="@Model[i].FullName" />
+                                </td>
+                                <td>@Model[i].FullName</td>
+                                <td>
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" asp-for="@Model[i].IsSelected" id="user_@i" />
+                                        <label class="custom-control-label" for="user_@i">
+                                            @(Model[i].IsSelected ? "已分配" : "未分配")
+                                        </label>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> 保存更改
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> 返回列表
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#usersTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Chinese.json"
+                }
+            });
+            
+            $('.custom-control-input').change(function() {
+                var label = $(this).next('label');
+                if ($(this).is(':checked')) {
+                    label.text('已分配');
+                } else {
+                    label.text('未分配');
+                }
+            });
+        });
+    </script>
+} 

@@ -1,0 +1,389 @@
+﻿@model ETMF.Models.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "首頁";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-chart-pie"></i> 文檔狀態統計
+                </h6>
+                <a class="btn btn-sm btn-primary" asp-controller="Documents" asp-action="Index">
+                    查看所有文檔
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="progress" style="height: 30px;">
+                            @if (Model.TotalDocumentsCount > 0)
+                            {
+                                var approvedPercent = (int)((double)Model.ApprovedDocumentsCount / Model.TotalDocumentsCount * 100);
+                                var pendingPercent = (int)((double)Model.PendingDocumentsCount / Model.TotalDocumentsCount * 100);
+                                var draftPercent = (int)((double)Model.DraftDocumentsCount / Model.TotalDocumentsCount * 100);
+                                var rejectedPercent = (int)((double)Model.RejectedDocumentsCount / Model.TotalDocumentsCount * 100);
+                                var expiredPercent = (int)((double)Model.ExpiredDocumentsCount / Model.TotalDocumentsCount * 100);
+                                var archivedPercent = (int)((double)Model.ArchivedDocumentsCount / Model.TotalDocumentsCount * 100);
+                                
+                                <div class="progress-bar bg-success" role="progressbar" style="width: @approvedPercent%" title="已批准: @Model.ApprovedDocumentsCount"></div>
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: @pendingPercent%" title="待審核: @Model.PendingDocumentsCount"></div>
+                                <div class="progress-bar bg-secondary" role="progressbar" style="width: @draftPercent%" title="草稿: @Model.DraftDocumentsCount"></div>
+                                <div class="progress-bar bg-danger" role="progressbar" style="width: @rejectedPercent%" title="已退回: @Model.RejectedDocumentsCount"></div>
+                                <div class="progress-bar bg-dark" role="progressbar" style="width: @expiredPercent%" title="已過期: @Model.ExpiredDocumentsCount"></div>
+                                <div class="progress-bar bg-info" role="progressbar" style="width: @archivedPercent%" title="已歸檔: @Model.ArchivedDocumentsCount"></div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            總文檔數量
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalDocumentsCount</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-file-alt fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <a href="@Url.Action("Index", "Documents")" class="btn btn-sm btn-primary btn-block">
+                                        <i class="fas fa-list"></i> 查看所有文檔
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-2">
+                        <div class="card border-left-warning shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                            待審核文檔
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.PendingDocumentsCount</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-clock fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <a href="@Url.Action("PendingDocuments", "Home")" class="btn btn-sm btn-warning btn-block">
+                                        <i class="fas fa-tasks"></i> 處理待審核文檔
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-2">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            已批准文檔
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.ApprovedDocumentsCount</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <a href="@Url.Action("ApprovedDocuments", "Home")" class="btn btn-sm btn-success btn-block">
+                                        <i class="fas fa-list-alt"></i> 查看已批准文檔
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-2">
+                        <div class="card border-left-secondary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                                            草稿文檔
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.DraftDocumentsCount</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-pencil-alt fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <a href="@Url.Action("DraftDocuments", "Home")" class="btn btn-sm btn-secondary btn-block">
+                                        <i class="fas fa-edit"></i> 編輯草稿文檔
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-2">
+                        <div class="card border-left-danger shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                            被退回文檔
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.RejectedDocumentsCount</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <a href="@Url.Action("RejectedDocuments", "Home")" class="btn btn-sm btn-danger btn-block">
+                                        <i class="fas fa-exclamation-circle"></i> 處理被退回文檔
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-2">
+                        <div class="card border-left-info shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                            已歸檔文檔
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.ArchivedDocumentsCount</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-archive fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <a href="@Url.Action("ArchivedDocuments", "Home")" class="btn btn-sm btn-info btn-block">
+                                        <i class="fas fa-archive"></i> 查看已歸檔文檔
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-file-import"></i> 最近上傳的文檔
+                </h6>
+                <a class="btn btn-sm btn-success" asp-controller="Documents" asp-action="Create">
+                    上傳新文檔
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>標題</th>
+                                <th>狀態</th>
+                                <th>作者</th>
+                                <th>文檔類型</th>
+                                <th>上傳時間</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.RecentDocuments?.Any() == true)
+                            {
+                                foreach (var doc in Model.RecentDocuments)
+                                {
+                                    <tr>
+                                        <td>@doc.Title</td>
+                                        <td>
+                                            @switch (doc.Status)
+                                            {
+                                                case "草稿":
+                                                    <span class="badge badge-secondary">草稿</span>
+                                                    break;
+                                                case "待審核":
+                                                    <span class="badge badge-warning">待審核</span>
+                                                    break;
+                                                case "已批准":
+                                                    <span class="badge badge-success">已批准</span>
+                                                    break;
+                                                case "已退回":
+                                                    <span class="badge badge-danger">已退回</span>
+                                                    break;
+                                                case "已過期":
+                                                    <span class="badge badge-dark">已過期</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge badge-light">@doc.Status</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>@doc.Author</td>
+                                        <td>@doc.ArtifactName</td>
+                                        <td>@doc.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                                        <td>
+                                            <a asp-controller="Documents" asp-action="Details" asp-route-id="@doc.Id" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center">尚無文檔</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-calendar-day"></i> 今日活動
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span>今日上傳</span>
+                        <span class="badge badge-primary">@Model.TodayUploadsCount</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>今日更新</span>
+                        <span class="badge badge-info">@Model.TodayUpdatesCount</span>
+                    </div>
+                </div>
+                <div class="d-grid gap-2">
+                    <a href="@Url.Action("Create", "Documents")" class="btn btn-primary btn-block">
+                        <i class="fas fa-upload"></i> 上傳新文檔
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-sitemap"></i> 系統概覽
+                </h6>
+                <a class="btn btn-sm btn-info" asp-controller="Home" asp-action="TmfTree">
+                    查看樹狀結構
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span>區域數量</span>
+                    <a asp-controller="Zones" asp-action="Index" class="badge badge-primary">@Model.TotalZonesCount</a>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span>部分數量</span>
+                    <a asp-controller="Sections" asp-action="Index" class="badge badge-info">@Model.TotalSectionsCount</a>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span>文檔類型數量</span>
+                    <a asp-controller="Artifacts" asp-action="Index" class="badge badge-success">@Model.TotalArtifactsCount</a>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span>用戶數量</span>
+                    <span class="badge badge-secondary">@Model.TotalUsersCount</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>存儲空間使用</span>
+                    <span class="badge badge-light">@FormatFileSize(Model.TotalStorageUsed)</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-star"></i> 熱門文檔類型
+                </h6>
+            </div>
+            <div class="card-body">
+                @if (Model.TopArtifacts?.Any() == true)
+                {
+                    <ul class="list-group">
+                        @foreach (var artifact in Model.TopArtifacts)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span>@artifact.Name</span>
+                                    <small class="d-block text-muted">@artifact.ZoneName > @artifact.SectionName</small>
+                                </div>
+                                <span class="badge badge-primary badge-pill">@artifact.DocumentCount</span>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-center">尚無文檔類型數據</p>
+                }
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-tasks"></i> 快速操作
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="@Url.Action("PendingDocuments", "Home")" class="btn btn-warning btn-block mb-2">
+                        <i class="fas fa-tasks"></i> 處理待審核文檔
+                    </a>
+                    <a href="@Url.Action("DraftDocuments", "Home")" class="btn btn-secondary btn-block mb-2">
+                        <i class="fas fa-edit"></i> 處理草稿文檔
+                    </a>
+                    <a href="@Url.Action("RejectedDocuments", "Home")" class="btn btn-danger btn-block mb-2">
+                        <i class="fas fa-exclamation-circle"></i> 處理被退回文檔
+                    </a>
+                    <a href="@Url.Action("ExpiredDocuments", "Home")" class="btn btn-dark btn-block mb-2">
+                        <i class="fas fa-calendar-times"></i> 處理已過期文檔
+                    </a>
+                    <a href="@Url.Action("Create", "Documents")" class="btn btn-success btn-block">
+                        <i class="fas fa-file-upload"></i> 上傳新文檔
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string FormatFileSize(long byteCount)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+        double len = byteCount;
+        int order = 0;
+        while (len >= 1024 && order < sizes.Length - 1) {
+            order++;
+            len = len / 1024;
+        }
+        return string.Format("{0:0.##} {1}", len, sizes[order]);
+    }
+}
