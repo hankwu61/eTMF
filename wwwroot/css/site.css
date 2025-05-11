@@ -1,0 +1,90 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px;
+}
+
+/* 自定义样式 */
+.card {
+  margin-bottom: 20px;
+  box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+}
+
+.card-header {
+  border-bottom: 1px solid rgba(0,0,0,0.125);
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0,0,0,0.05);
+}
+
+.document-metadata {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.document-versions {
+  margin-top: 20px;
+}
+
+.version-item {
+  border-left: 3px solid #6c757d;
+  padding-left: 10px;
+  margin-bottom: 10px;
+}
+
+.version-item.current {
+  border-left-color: #28a745;
+}
+
+.artifact-item {
+  border-left: 3px solid #17a2b8;
+  padding-left: 10px;
+  margin-bottom: 10px;
+}
+
+.section-item {
+  border-left: 3px solid #007bff;
+  padding-left: 10px;
+  margin-bottom: 15px;
+}
+
+.zone-item {
+  margin-bottom: 30px;
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}
